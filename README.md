@@ -16,7 +16,7 @@ A production-ready, self-hosted support request processing system with AI-powere
 
 ## 🏗️ Architecture
 
-\`\`\`
+```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Web Form      │    │   FastAPI App    │    │   PostgreSQL    │
 │   (Customer)    │───▶│   (API Server)   │───▶│   (Database)    │
@@ -33,12 +33,12 @@ A production-ready, self-hosted support request processing system with AI-powere
                        │   Ollama AI      │    │  Teams Webhook  │
                        │   (Classification)│    │  (Notifications)│
                        └──────────────────┘    └─────────────────┘
-\`\`\`
+```
 
 ## 🎯 Complete System Demonstration
 
 ### Quick Setup & Test
-\`\`\`bash
+```bash
 # 1. Start all services
 docker-compose up -d
 
@@ -48,10 +48,10 @@ chmod +x scripts/init_ollama.sh
 
 # 3. Run complete system demonstration
 python3 scripts/task_demonstration.py
-\`\`\`
+```
 
 ### Expected Demo Output
-\`\`\`
+```
 🚀 Customer Support Automation System Demo
 ==========================================
 
@@ -102,7 +102,7 @@ python3 scripts/task_demonstration.py
 - Teams Notifications: 2/4 sent (for critical categories)
 
 🎉 Demo Complete! All systems working perfectly.
-\`\`\`
+```
 
 ## 📋 Requirements
 
@@ -114,14 +114,14 @@ python3 scripts/task_demonstration.py
 
 ### 1. Clone and Setup
 
-\`\`\`bash
+```bash
 git clone <repository-url>
 cd support-system
-\`\`\`
+```
 
 ### 2. Deploy with Docker
 
-\`\`\`bash
+```bash
 # Start all services
 docker-compose up -d
 
@@ -131,25 +131,25 @@ chmod +x scripts/init_ollama.sh
 
 # Check service health
 docker-compose ps
-\`\`\`
+```
 
 ### 3. Configure Teams (Optional)
 
-\`\`\`bash
+```bash
 # Set your Teams webhook URL
 export TEAMS_WEBHOOK_URL="https://your-teams-webhook-url"
 docker-compose restart web worker
-\`\`\`
+```
 
 ### 4. Test the System
 
-\`\`\`bash
+```bash
 # Run complete demonstration
 python3 scripts/task_demonstration.py
 
 # Or test manually
 curl http://localhost:8000/health
-\`\`\`
+```
 
 ## 🌐 Usage
 
@@ -161,7 +161,7 @@ curl http://localhost:8000/health
 
 ### API Examples
 
-\`\`\`bash
+```bash
 # Submit support request
 curl -X POST http://localhost:8000/api/support-requests \
   -H "Content-Type: application/json" \
@@ -171,8 +171,10 @@ curl -X POST http://localhost:8000/api/support-requests \
     "subject": "Need help with billing",
     "description": "I have a question about my recent invoice..."
   }'
+```
 
-# Response:
+**Response:**
+```json
 {
   "id": 1,
   "customer_name": "John Doe",
@@ -182,11 +184,15 @@ curl -X POST http://localhost:8000/api/support-requests \
   "processing_status": "pending",
   "created_at": "2024-01-15T10:30:00Z"
 }
+```
 
+```bash
 # Get request status (after AI processing)
 curl http://localhost:8000/api/support-requests/1
+```
 
-# Response:
+**Response:**
+```json
 {
   "id": 1,
   "customer_name": "John Doe",
@@ -200,13 +206,15 @@ curl http://localhost:8000/api/support-requests/1
   "created_at": "2024-01-15T10:30:00Z",
   "processed_at": "2024-01-15T10:31:00Z"
 }
+```
 
+```bash
 # List all requests
 curl http://localhost:8000/api/support-requests
 
 # Get system statistics
 curl http://localhost:8000/api/stats
-\`\`\`
+```
 
 ## 🤖 AI Classification Categories
 
@@ -223,7 +231,7 @@ The system automatically classifies requests into:
 
 Critical requests (cancellations, complaints, technical issues) automatically trigger Teams notifications:
 
-\`\`\`json
+```json
 {
   "@type": "MessageCard",
   "@context": "http://schema.org/extensions",
@@ -240,7 +248,7 @@ Critical requests (cancellations, complaints, technical issues) automatically tr
     ]
   }]
 }
-\`\`\`
+```
 
 ## 🔧 Configuration
 
@@ -258,19 +266,19 @@ Critical requests (cancellations, complaints, technical issues) automatically tr
 
 ### Scaling Configuration
 
-\`\`\`yaml
+```yaml
 # docker-compose.yml
 worker:
   command: celery -A app.tasks worker --loglevel=info --concurrency=4
   deploy:
     replicas: 2
-\`\`\`
+```
 
 ## 📊 Monitoring
 
 ### Health Checks
 
-\`\`\`bash
+```bash
 # Application health
 curl http://localhost:8000/health
 
@@ -282,11 +290,11 @@ docker-compose exec redis redis-cli ping
 
 # Ollama health
 curl http://localhost:11434/api/version
-\`\`\`
+```
 
 ### Logs
 
-\`\`\`bash
+```bash
 # Application logs
 docker-compose logs -f web
 
@@ -295,13 +303,13 @@ docker-compose logs -f worker
 
 # All services
 docker-compose logs -f
-\`\`\`
+```
 
 ### Statistics
 
 The system provides real-time statistics at `/api/stats`:
 
-\`\`\`json
+```json
 {
   "total_requests": 150,
   "status_breakdown": {
@@ -317,13 +325,13 @@ The system provides real-time statistics at `/api/stats`:
     "general_inquiry": 32
   }
 }
-\`\`\`
+```
 
 ## 🛠️ Development
 
 ### Local Development
 
-\`\`\`bash
+```bash
 # Install dependencies
 pip install -r requirements.txt
 
@@ -337,11 +345,11 @@ uvicorn app.main:app --reload
 
 # Run worker locally
 celery -A app.tasks worker --loglevel=info
-\`\`\`
+```
 
 ### Testing
 
-\`\`\`bash
+```bash
 # Run demo test
 python scripts/demo_test.py
 
@@ -349,14 +357,14 @@ python scripts/demo_test.py
 curl -X POST http://localhost:8000/api/support-requests \
   -H "Content-Type: application/json" \
   -d @test_request.json
-\`\`\`
+```
 
 ## 🚨 Troubleshooting
 
 ### Common Issues
 
 **AI Processing Timeouts**
-\`\`\`bash
+```bash
 # Check Ollama status
 curl http://localhost:11434/api/version
 
@@ -365,20 +373,20 @@ docker-compose restart ollama
 
 # Check worker logs
 docker-compose logs worker
-\`\`\`
+```
 
 **Database Connection Issues**
-\`\`\`bash
+```bash
 # Check PostgreSQL status
 docker-compose exec postgres pg_isready -U support_user
 
 # Reset database
 docker-compose down -v
 docker-compose up -d postgres
-\`\`\`
+```
 
 **Teams Notifications Not Working**
-\`\`\`bash
+```bash
 # Verify webhook URL
 echo $TEAMS_WEBHOOK_URL
 
@@ -386,12 +394,12 @@ echo $TEAMS_WEBHOOK_URL
 curl -X POST $TEAMS_WEBHOOK_URL \
   -H "Content-Type: application/json" \
   -d '{"text": "Test message"}'
-\`\`\`
+```
 
 ### Performance Tuning
 
 **For High Volume**
-\`\`\`yaml
+```yaml
 # Increase worker concurrency
 worker:
   command: celery -A app.tasks worker --loglevel=info --concurrency=8
@@ -400,23 +408,23 @@ worker:
 worker:
   deploy:
     replicas: 4
-\`\`\`
+```
 
 **For Limited Resources**
-\`\`\`yaml
+```yaml
 # Reduce Ollama memory
 ollama:
   deploy:
     resources:
       limits:
         memory: 2G
-\`\`\`
+```
 
 ## 📚 API Reference
 
 ### Support Request Object
 
-\`\`\`json
+```json
 {
   "id": 1,
   "customer_name": "John Doe",
@@ -426,12 +434,12 @@ ollama:
   "category": "billing",
   "ai_summary": "Customer inquiry about billing charges",
   "processing_status": "completed",
-  "notification_sent": "false",
+  "notification_sent": false,
   "created_at": "2024-01-15T10:30:00Z",
   "updated_at": "2024-01-15T10:31:00Z",
   "processed_at": "2024-01-15T10:31:00Z"
 }
-\`\`\`
+```
 
 ### Status Values
 
