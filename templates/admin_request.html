@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Request #{{ support_request.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+        .status.pending { background-color: #ffc107; color: #856404; }
+        .status.processing { background-color: #17a2b8; color: white; }
+        .status.completed { background-color: #28a745; color: white; }
+        .status.failed { background-color: #dc3545; color: white; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .info-item {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        .description {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .ai-summary {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Support Request #{{ support_request.id }}</h1>
+            <span class="status {{ support_request.processing_status }}">{{ support_request.processing_status }}</span>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Customer Name</div>
+                <div>{{ support_request.customer_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Email</div>
+                <div>{{ support_request.email }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Subject</div>
+                <div>{{ support_request.subject }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Category</div>
+                <div>{{ support_request.category or "Not classified" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Created</div>
+                <div>{{ support_request.created_at.strftime("%Y-%m-%d %H:%M:%S UTC") }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Teams Notification</div>
+                <div>{{ "Sent" if support_request.notification_sent == "true" else "Not sent" }}</div>
+            </div>
+        </div>
+        
+        <div class="description">
+            <h3>Description</h3>
+            <p>{{ support_request.description }}</p>
+        </div>
+        
+        {% if support_request.ai_summary %}
+        <div class="ai-summary">
+            <h3>🤖 AI Summary</h3>
+            <p>{{ support_request.ai_summary }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

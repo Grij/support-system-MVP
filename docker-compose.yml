@@ -1,0 +1,123 @@
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://support_user:support_pass@postgres:5432/support_db
+      - REDIS_URL=redis://redis:6379/0
+      - AI_PROVIDER=ollama
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.1:8b
+      - TEAMS_WEBHOOK_URL=${TEAMS_WEBHOOK_URL:-https://your-teams-webhook-url-here}
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A app.tasks worker --loglevel=info --concurrency=2
+    environment:
+      - DATABASE_URL=postgresql://support_user:support_pass@postgres:5432/support_db
+      - REDIS_URL=redis://redis:6379/0
+      - AI_PROVIDER=ollama
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.1:8b
+      - TEAMS_WEBHOOK_URL=${TEAMS_WEBHOOK_URL:-https://your-teams-webhook-url-here}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.tasks", "inspect", "ping"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=support_db
+      - POSTGRES_USER=support_user
+      - POSTGRES_PASSWORD=support_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U support_user -d support_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Self-hosted AI service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: support_ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_MODELS_DIR=/root/.ollama/models
+      - OLLAMA_DEBUG=INFO
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
